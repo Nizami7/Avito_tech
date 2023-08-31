@@ -1,0 +1,35 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+def test_add_to_favorites():
+    # Создание экземпляра Chrome WebDriver
+    options = Options()
+    options.add_argument('--ignore-certificate-errors-spki-list')
+    options.add_argument('--ignore-ssl-errors')
+    driver = webdriver.Chrome(options=options)
+
+    # Открыть URL
+    driver.get('https://www.avito.ru/nikel/knigi_i_zhurnaly/domain-driven_design_distilled_vaughn_vernon_2639542363')
+
+    try:
+        # Добавить страницу в избранное
+        favorite_button = WebDriverWait(driver, 5).until(
+            EC.visibility_of_element_located((By.XPATH, "//button[contains(@class, 'favorite-toggle-button')]"))
+        )
+        favorite_button.click()
+
+        # Подтвердить, что объявление было добавлено в избранное
+        message = WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.CLASS_NAME, 'favorites-index-add-notify')))
+        assert "Добавлено в избранное" in message.text
+        print("Тест успешно пройден: объявление добавлено в избранное!")
+
+    except Exception as e:
+        print("Ошибка при выполнении теста:", str(e))
+
+    finally:
+        # Закрыть браузер
+        driver.quit()
